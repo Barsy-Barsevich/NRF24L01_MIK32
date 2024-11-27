@@ -1,5 +1,14 @@
 #include "NRF24L01.h"
 
+const uint64_t pipe_addr[] = {
+    0x7878787878, //< 0
+    0xB3B4B5B6F1, //< 1
+    0xB3B4B5B6CD, //< 2
+    0xB3B4B5B6A3, //< 3
+    0xB3B4B5B60F, //< 4
+    0xB3B4B5B605  //< 5
+};
+
 void NRF24L01_RX_Mode(NRF24L01_t *nrf)
 {
     uint8_t regval=0x00;
@@ -43,8 +52,8 @@ void NRF24L01_Init(NRF24L01_t *nrf)
     NRF24L01_WriteReg(nrf, NRF_CONFIG, config);
 
     HAL_DelayUs(4500);
-    NRF24L01_WriteReg(nrf, NRF_EN_AA, nrf->pipe);
-    NRF24L01_WriteReg(nrf, NRF_EN_RXADDR, nrf->pipe);
+    NRF24L01_WriteReg(nrf, NRF_EN_AA, (1<<nrf->rx_pipe));
+    NRF24L01_WriteReg(nrf, NRF_EN_RXADDR, (1<<nrf->rx_pipe));
     uint8_t setup_aw;
     switch (nrf->address_width)
     {
@@ -60,11 +69,21 @@ void NRF24L01_Init(NRF24L01_t *nrf)
     NRF24L01_WriteReg(nrf, NRF_STATUS, 0b01110000); // reset interrupt flags
     NRF24L01_WriteReg(nrf, NRF_RF_CH, nrf->rf.channel);
     NRF24L01_WriteReg(nrf, NRF_RF_SETUP, nrf->rf.datarate | nrf->rf.power);
-    NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)&(nrf->tx_addr), 5);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)&(nrf->tx_addr), 5);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)&(nrf->rx_addr), 5);
+
+    // NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)&(nrf->tx_addr), 5);
+    // NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)&(nrf->tx_addr), 5);
+    // NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)&(nrf->rx_addr), 5);
+    NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)(pipe_addr+nrf->tx_pipe), 5);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)(pipe_addr+nrf->tx_pipe), 5);
+    // NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)(pipe_addr+nrf->rx_addr), 5);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)(pipe_addr+nrf->rx_pipe), 5);
+
     NRF24L01_WriteReg(nrf, NRF_RX_PW_P0, nrf->payload_width);
     NRF24L01_WriteReg(nrf, NRF_RX_PW_P1, nrf->payload_width);
+    NRF24L01_WriteReg(nrf, NRF_RX_PW_P2, nrf->payload_width);
+    NRF24L01_WriteReg(nrf, NRF_RX_PW_P3, nrf->payload_width);
+    NRF24L01_WriteReg(nrf, NRF_RX_PW_P4, nrf->payload_width);
+    NRF24L01_WriteReg(nrf, NRF_RX_PW_P5, nrf->payload_width);
     NRF24L01_RX_Mode(nrf);
 }
 
@@ -177,10 +196,6 @@ uint8_t NRF24L01_Send(NRF24L01_t *nrf, uint8_t *buf)
     CE_UP(nrf);
     HAL_DelayUs(15);
     CE_DOWN(nrf);
-    // while ((status & (1<<5)) == 0)
-    // {
-    //     status = NRF24L01_ReadReg(nrf, NRF_STATUS);
-    // }
     regval = NRF24L01_ReadReg(nrf, NRF_OBSERVE_TX);
     return regval;
 }
@@ -197,10 +212,12 @@ HAL_StatusTypeDef NRF24L01_TX_data_sent(NRF24L01_t *nrf)
     return (status & NRF_CONFIG_TX_DS_M) != 0 ? HAL_OK : HAL_BUSY;
 }
 
-HAL_StatusTypeDef NRF24L01_Read(NRF24L01_t *nrf, uint8_t *buf)
+int8_t NRF24L01_Read(NRF24L01_t *nrf, uint8_t *buf)
 {
-    if (NRF24L01_RX_data_ready(nrf) != HAL_OK) return HAL_BUSY;
+    uint8_t status = NRF24L01_ReadReg(nrf, NRF_STATUS);
+    if ((status & NRF_CONFIG_RX_DR_M) == 0) return -1;
     NRF24L01_ReadBuf(nrf, RD_RX_PLOAD, buf, nrf->payload_width);
+    NRF24L01_WriteReg(nrf, NRF_STATUS, NRF_STATUS_RX_DR_M);
     NRF24L01_FlushRX(nrf);
-    return HAL_OK;
+    return (status & NRF_STATUS_RX_P_NO_M) >> NRF_STATUS_RX_P_NO;
 }

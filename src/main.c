@@ -54,9 +54,11 @@ int main()
     nrf.ce_port = GPIO_2;
     nrf.cs = SPI_CS_0;
     nrf.payload_width = 2;
-    nrf.pipe = PIPE_1;
-    nrf.rx_addr = 0xB3B4B5B6F1;
-    nrf.tx_addr = 0xB3B4B5B6F1;
+    // nrf.pipe = PIPE_1;
+    // nrf.rx_addr = 0xB3B4B5B6F1;
+    // nrf.tx_addr = 0xB3B4B5B6F1;
+    nrf.rx_pipe = 1;
+    nrf.tx_pipe = 1;
     nrf.rf.channel = 76;
     nrf.rf.datarate = RF_DataRate_1Mbps;
     nrf.rf.power = no_attenuation;
@@ -71,6 +73,18 @@ int main()
 
     uint8_t dt_reg = 0;
     uint8_t buf1[10];
+
+    while (1)
+    {
+        while (NRF24L01_RX_data_ready(&nrf) != HAL_OK)
+        {
+            xprintf(".");
+            HAL_DelayMs(10);
+        }
+        uint8_t pipe = NRF24L01_Read(&nrf, buf1);
+        xprintf("\nRead: %02X-%02X; pipe %u\n", buf1[0], buf1[1], pipe);
+    }
+
     while (1)
     {
         HAL_DelayMs(1000);
@@ -90,8 +104,8 @@ int main()
         xprintf("RX_ADDR: 0x%02X, 0x%02X, 0x%02X\n",buf1[0],buf1[1],buf1[2]);
 
         //NRF24L01_ReadBuf(&nrf, RD_RX_PLOAD, buf1, 3);
-        NRF24L01_Read(&nrf, buf1);
-        xprintf("Read: %02X-%02X-%02X\n\n", buf1[0], buf1[1], buf1[2]);
+        uint8_t pipe = NRF24L01_Read(&nrf, buf1);
+        xprintf("Read: %02X-%02X; pipe %u\n\n", buf1[0], buf1[1], pipe);
     }
 }
 #endif
