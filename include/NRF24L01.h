@@ -9,37 +9,46 @@
 #define FLUSH_TX 0xE1
 #define FLUSH_RX 0xE2
 //------------------------------------------------
-#define NRF_CONFIG 0x00 //'Config' register address
-#define EN_AA 0x01 //'Enable Auto Acknowledgment' register address
-#define EN_RXADDR 0x02 //'Enabled RX addresses' register address
-#define SETUP_AW 0x03 //'Setup address width' register address
-#define SETUP_RETR 0x04 //'Setup Auto. Retrans' register address
-#define RF_CH 0x05 //'RF channel' register address
-#define RF_SETUP 0x06 //'RF setup' register address
-#define STATUS 0x07 //'Status' register address
-#define OBSERVE_TX 0x08 //'Transmit observe' register
-#define RX_ADDR_P0 0x0A //'RX address pipe0' register address
-#define RX_ADDR_P1 0x0B //'RX address pipe1' register address
-#define RX_ADDR_P2 0x0C //'RX address pipe2' register address
-#define RX_ADDR_P3 0x0D //'RX address pipe3' register address
-#define RX_ADDR_P4 0x0E //'RX address pipe4' register address
-#define RX_ADDR_P5 0x0F //'RX address pipe5' register address
-#define TX_ADDR 0x10 //'TX address' register address
-#define RX_PW_P0 0x11 //'RX payload width, pipe0' register address
-#define RX_PW_P1 0x12 //'RX payload width, pipe1' register address
-#define RX_PW_P2 0x13 //'RX payload width, pipe1' register address
-#define RX_PW_P3 0x14 //'RX payload width, pipe1' register address
-#define RX_PW_P4 0x15 //'RX payload width, pipe1' register address
-#define RX_PW_P5 0x16 //'RX payload width, pipe1' register address
-#define FIFO_STATUS 0x17 //'FIFO Status Register' register address
-#define DYNPD 0x1C
-#define FEATURE 0x1D
+#define NRF_CONFIG      0x00 //'Config' register address
+#define NRF_EN_AA       0x01 //'Enable Auto Acknowledgment' register address
+#define NRF_EN_RXADDR   0x02 //'Enabled RX addresses' register address
+#define NRF_SETUP_AW    0x03 //'Setup address width' register address
+#define NRF_SETUP_RETR 0x04 //'Setup Auto. Retrans' register address
+#define NRF_RF_CH 0x05 //'RF channel' register address
+#define NRF_RF_SETUP 0x06 //'RF setup' register address
+#define NRF_STATUS 0x07 //'Status' register address
+#define NRF_OBSERVE_TX 0x08 //'Transmit observe' register
+#define NRF_RX_ADDR_P0 0x0A //'RX address pipe0' register address
+#define NRF_RX_ADDR_P1 0x0B //'RX address pipe1' register address
+#define NRF_RX_ADDR_P2 0x0C //'RX address pipe2' register address
+#define NRF_RX_ADDR_P3 0x0D //'RX address pipe3' register address
+#define NRF_RX_ADDR_P4 0x0E //'RX address pipe4' register address
+#define NRF_RX_ADDR_P5 0x0F //'RX address pipe5' register address
+#define NRF_TX_ADDR 0x10 //'TX address' register address
+#define NRF_RX_PW_P0 0x11 //'RX payload width, pipe0' register address
+#define NRF_RX_PW_P1 0x12 //'RX payload width, pipe1' register address
+#define NRF_RX_PW_P2 0x13 //'RX payload width, pipe1' register address
+#define NRF_RX_PW_P3 0x14 //'RX payload width, pipe1' register address
+#define NRF_RX_PW_P4 0x15 //'RX payload width, pipe1' register address
+#define NRF_RX_PW_P5 0x16 //'RX payload width, pipe1' register address
+#define NRF_FIFO_STATUS 0x17 //'FIFO Status Register' register address
+#define NRF_DYNPD 0x1C
+#define NRF_FEATURE 0x1D
 //------------------------------------------------
-#define PRIM_RX 0x00 //RX/TX control (1: PRX, 0: PTX)
-#define PWR_UP 0x01 //1: POWER UP, 0:POWER DOWN
-#define RX_DR 0x40 //Data Ready RX FIFO interrupt
-#define TX_DS 0x20 //Data Sent TX FIFO interrupt
-#define MAX_RT 0x10 //Maximum number of TX retransmits interrupt
+#define NRF_CONFIG_PRIM_RX      0 //RX/TX control (1: PRX, 0: PTX)
+#define NRF_CONFIG_PRIM_RX_M    (1<<NRF_CONFIG_PRIM_RX)
+#define NRF_CONFIG_PWR_UP       1 //1: POWER UP, 0:POWER DOWN
+#define NRF_CONFIG_PWR_UP_M     (1<<NRF_CONFIG_PWR_UP)
+#define NRF_CONFIG_CRCO         2
+#define NRF_CONFIG_CRCO_M       (1<<NRF_CONFIG_CRCO)
+#define NRF_CONFIG_EN_CRC       3
+#define NRF_CONFIG_EN_CRC_M     (1<<NRF_CONFIG_EN_CRC) 
+#define NRF_CONFIG_MAX_RT       4 //Maximum number of TX retransmits interrupt
+#define NRF_CONFIG_MAX_RT_M     (1<<NRF_CONFIG_MAX_RT)
+#define NRF_CONFIG_TX_DS        5 //Data Sent TX FIFO interrupt
+#define NRF_CONFIG_TX_DS_M      (1<<NRF_CONFIG_TX_DS)
+#define NRF_CONFIG_RX_DR        6 //Data Ready RX FIFO interrupt
+#define NRF_CONFIG_RX_DR_M      (1<<NRF_CONFIG_RX_DR)
 
 #define NRF_RF_SETUP_RF_DR_LOW          5
 #define NRF_RF_SETUP_RF_DR_HIGH         3
@@ -76,6 +85,12 @@ typedef enum __RF_Power {
     attenuate_in_4_times = 0b01<<NRF_RF_SETUP_RF_PWR,
     attenuate_in_8_times = 0b00<<NRF_RF_SETUP_RF_PWR,
 } NRF24L01_RF_PWR_t;
+
+typedef enum __CRC {
+    crc_disabled,
+    crc_8bit,
+    crc_16bit
+} NRF24L01_CRC_t;
 
 
 typedef struct __NRF24L01_t
@@ -114,4 +129,4 @@ uint8_t NRF24L01_Send(NRF24L01_t *nrf, uint8_t *buf);
 HAL_StatusTypeDef NRF24L01_RX_data_ready(NRF24L01_t *nrf);
 HAL_StatusTypeDef NRF24L01_TX_data_sent(NRF24L01_t *nrf);
 
-void NRF24L01_Read(NRF24L01_t *nrf, uint8_t *buf);
+HAL_StatusTypeDef NRF24L01_Read(NRF24L01_t *nrf, uint8_t *buf);
