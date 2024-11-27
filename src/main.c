@@ -60,34 +60,36 @@ int main()
     nrf.pipe = PIPE_1;
     nrf.rx_addr = 0xB3B4B5B6F1;
     nrf.tx_addr = 0xB3B4B5B6F1;
-    nrf.rf_channel = 76;
-    nrf.rf_datarate = RF_DataRate_1Mbps;
-    nrf.rf_power = no_attenuation;
+    nrf.rf.channel = 76;
+    nrf.rf.datarate = RF_DataRate_1Mbps;
+    nrf.rf.power = no_attenuation;
     nrf.address_width = 3;
     nrf.spi = &hspi0;
 
-    NRF24_Init(&nrf);
+    NRF24L01_Init(&nrf);
 
     uint8_t dt_reg = 0;
     uint8_t buf1[10];
     while (1)
     {
         HAL_DelayMs(1000);
-        dt_reg = NRF24_ReadReg(&nrf, NRF_CONFIG);
+        dt_reg = NRF24L01_ReadReg(&nrf, NRF_CONFIG);
         xprintf("NRF_CONFIG: 0x%02X\n", dt_reg);
-        dt_reg = NRF24_ReadReg(&nrf, EN_AA);
+        dt_reg = NRF24L01_ReadReg(&nrf, EN_AA);
         xprintf("EN_AA: 0x%02X\n", dt_reg);
-        dt_reg = NRF24_ReadReg(&nrf, EN_RXADDR);
+        dt_reg = NRF24L01_ReadReg(&nrf, EN_RXADDR);
         xprintf("EN_RXADDR: 0x%02X\n", dt_reg);
-        dt_reg = NRF24_ReadReg(&nrf, STATUS);
+        dt_reg = NRF24L01_ReadReg(&nrf, STATUS);
         xprintf("STATUS: 0x%02X\n", dt_reg);
-        dt_reg = NRF24_ReadReg(&nrf, RF_SETUP);
+        dt_reg = NRF24L01_ReadReg(&nrf, RF_SETUP);
         xprintf("RF_SETUP: 0x%02X\n", dt_reg);
-        NRF24_ReadBuf(&nrf, TX_ADDR, buf1, 3);
+        NRF24L01_ReadBuf(&nrf, TX_ADDR, buf1, 3);
         xprintf("TX_ADDR: 0x%02X, 0x%02X, 0x%02X\n",buf1[0],buf1[1],buf1[2]);
-        NRF24_ReadBuf(&nrf, RX_ADDR_P1, buf1, 3);
+        NRF24L01_ReadBuf(&nrf, RX_ADDR_P1, buf1, 3);
         xprintf("RX_ADDR: 0x%02X, 0x%02X, 0x%02X\n",buf1[0],buf1[1],buf1[2]);
-        NRF24_ReadBuf(&nrf, RD_RX_PLOAD, buf1, 3);
+
+        //NRF24L01_ReadBuf(&nrf, RD_RX_PLOAD, buf1, 3);
+        NRF24L01_Read(&nrf, buf1);
         xprintf("Read: %02X-%02X-%02X\n\n", buf1[0], buf1[1], buf1[2]);
     }
 }
@@ -108,13 +110,13 @@ int main()
     nrf.pipe = PIPE_0;
     nrf.rx_addr = 0xB3B4B5B6F1;
     nrf.tx_addr = 0xB3B4B5B6F1;
-    nrf.rf_channel = 76;
-    nrf.rf_datarate = RF_DataRate_1Mbps;
-    nrf.rf_power = no_attenuation;
+    nrf.rf.channel = 76;
+    nrf.rf.datarate = RF_DataRate_1Mbps;
+    nrf.rf.power = no_attenuation;
     nrf.address_width = 3;
     nrf.spi = &hspi0;
 
-    NRF24_Init(&nrf);
+    NRF24L01_Init(&nrf);
 
     uint8_t dt_reg = 0;
     uint8_t buf1[10];
@@ -122,26 +124,26 @@ int main()
     {
         HAL_DelayMs(500);
         xprintf("Trans-zhmans\n");
-        uint8_t lula[] = {0x23, 0x11};
+        uint8_t lula[] = {0x34, 0x02};
         uint8_t status = NRF24L01_Send(&nrf, lula);
         xprintf("status: %02X\n", status);
         HAL_DelayMs(500);
-        dt_reg = NRF24_ReadReg(&nrf, NRF_CONFIG);
+        dt_reg = NRF24L01_ReadReg(&nrf, NRF_CONFIG);
         xprintf("NRF_CONFIG: 0x%02X\n", dt_reg);
-        dt_reg = NRF24_ReadReg(&nrf, EN_AA);
+        dt_reg = NRF24L01_ReadReg(&nrf, EN_AA);
         xprintf("EN_AA: 0x%02X\n", dt_reg);
-        dt_reg = NRF24_ReadReg(&nrf, EN_RXADDR);
+        dt_reg = NRF24L01_ReadReg(&nrf, EN_RXADDR);
         xprintf("EN_RXADDR: 0x%02X\n", dt_reg);
-        dt_reg = NRF24_ReadReg(&nrf, STATUS);
+        dt_reg = NRF24L01_ReadReg(&nrf, STATUS);
         xprintf("STATUS: 0x%02X\n", dt_reg);
-        dt_reg = NRF24_ReadReg(&nrf, RF_SETUP);
+        dt_reg = NRF24L01_ReadReg(&nrf, RF_SETUP);
         xprintf("RF_SETUP: 0x%02X\n", dt_reg);
-        NRF24_ReadBuf(&nrf, TX_ADDR, buf1, 3);
+        NRF24L01_ReadBuf(&nrf, TX_ADDR, buf1, 3);
         xprintf("TX_ADDR: 0x%02X, 0x%02X, 0x%02X\n",buf1[0],buf1[1],buf1[2]);
-        NRF24_ReadBuf(&nrf, RX_ADDR_P0, buf1, 3);
+        NRF24L01_ReadBuf(&nrf, RX_ADDR_P0, buf1, 3);
         xprintf("RX_ADDR: 0x%02X, 0x%02X, 0x%02X\n\n",buf1[0],buf1[1],buf1[2]);
 
-        NRF24_WriteReg(&nrf, STATUS, 0x10);
+        NRF24L01_WriteReg(&nrf, STATUS, 0x10);
     }
 }
 #endif

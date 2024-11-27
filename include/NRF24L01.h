@@ -85,28 +85,30 @@ typedef struct __NRF24L01_t
     GPIO_TypeDef *ce_port;
     HAL_PinsTypeDef ce_pin;
     uint8_t pipe;
+    uint8_t address_width;
     uint64_t tx_addr;
     uint64_t rx_addr;
     uint8_t payload_width;
-    uint8_t rf_channel;
-    NRF24L01_RF_DR_t rf_datarate;
-    NRF24L01_RF_PWR_t rf_power;
-    uint8_t address_width;
+    struct {
+        uint8_t channel;
+        NRF24L01_RF_DR_t datarate;
+        NRF24L01_RF_PWR_t power;
+    } rf;
 } NRF24L01_t;
 
 
 void NRF24L01_RX_Mode(NRF24L01_t *nrf);
 void NRF24L01_TX_Mode(NRF24L01_t *nrf);
-void NRF24_Init(NRF24L01_t *nrf);
+void NRF24L01_Init(NRF24L01_t *nrf);
 void CE_DOWN(NRF24L01_t *nrf);
 void CE_UP(NRF24L01_t *nrf);
-uint8_t NRF24_ReadReg(NRF24L01_t *nrf, uint8_t addr);
-void NRF24_WriteReg(NRF24L01_t *nrf, uint8_t addr, uint8_t data);
-void NRF24_ReadBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan);
-void NRF24_WriteBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan);
-void NRF24_FlushRX(NRF24L01_t *nrf);
-void NRF24_FlushTX(NRF24L01_t *nrf);
-void NRF24_Transmit(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan);
+uint8_t NRF24L01_ReadReg(NRF24L01_t *nrf, uint8_t addr);
+void NRF24L01_WriteReg(NRF24L01_t *nrf, uint8_t addr, uint8_t data);
+void NRF24L01_ReadBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan);
+void NRF24L01_WriteBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan);
+void NRF24L01_FlushRX(NRF24L01_t *nrf);
+void NRF24L01_FlushTX(NRF24L01_t *nrf);
+void NRF24L01_Transmit(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan);
 uint8_t NRF24L01_Send(NRF24L01_t *nrf, uint8_t *buf);
 
 HAL_StatusTypeDef NRF24L01_RX_data_ready(NRF24L01_t *nrf);
