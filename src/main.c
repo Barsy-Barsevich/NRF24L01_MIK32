@@ -36,11 +36,8 @@ void HAL_DelayMs(uint32_t ms)
     HAL_Time_SCR1TIM_DelayMs(ms);
 }
 
-//#define NRF_LISTENING
-//#define NRF_TRANSMITTING
-
-//#define RECEIVE
-#define TRANSMIT
+#define RECEIVE
+//#define TRANSMIT
 
 NRF24L01_t nrf;
 
@@ -64,6 +61,10 @@ int main()
     nrf.rf.datarate = RF_DataRate_1Mbps;
     nrf.rf.power = no_attenuation;
     nrf.address_width = 3;
+    nrf.crc = crc_16bit;
+    nrf.irq.rx = 0;
+    nrf.irq.tx = 0;
+    nrf.irq.max_rt = 0;
     nrf.spi = &hspi0;
 
     NRF24L01_Init(&nrf);
@@ -75,17 +76,17 @@ int main()
         HAL_DelayMs(1000);
         dt_reg = NRF24L01_ReadReg(&nrf, NRF_CONFIG);
         xprintf("NRF_CONFIG: 0x%02X\n", dt_reg);
-        dt_reg = NRF24L01_ReadReg(&nrf, EN_AA);
+        dt_reg = NRF24L01_ReadReg(&nrf, NRF_EN_AA);
         xprintf("EN_AA: 0x%02X\n", dt_reg);
-        dt_reg = NRF24L01_ReadReg(&nrf, EN_RXADDR);
+        dt_reg = NRF24L01_ReadReg(&nrf, NRF_EN_RXADDR);
         xprintf("EN_RXADDR: 0x%02X\n", dt_reg);
-        dt_reg = NRF24L01_ReadReg(&nrf, STATUS);
+        dt_reg = NRF24L01_ReadReg(&nrf, NRF_STATUS);
         xprintf("STATUS: 0x%02X\n", dt_reg);
-        dt_reg = NRF24L01_ReadReg(&nrf, RF_SETUP);
+        dt_reg = NRF24L01_ReadReg(&nrf, NRF_RF_SETUP);
         xprintf("RF_SETUP: 0x%02X\n", dt_reg);
-        NRF24L01_ReadBuf(&nrf, TX_ADDR, buf1, 3);
+        NRF24L01_ReadBuf(&nrf, NRF_TX_ADDR, buf1, 3);
         xprintf("TX_ADDR: 0x%02X, 0x%02X, 0x%02X\n",buf1[0],buf1[1],buf1[2]);
-        NRF24L01_ReadBuf(&nrf, RX_ADDR_P1, buf1, 3);
+        NRF24L01_ReadBuf(&nrf, NRF_RX_ADDR_P1, buf1, 3);
         xprintf("RX_ADDR: 0x%02X, 0x%02X, 0x%02X\n",buf1[0],buf1[1],buf1[2]);
 
         //NRF24L01_ReadBuf(&nrf, RD_RX_PLOAD, buf1, 3);
@@ -114,6 +115,10 @@ int main()
     nrf.rf.datarate = RF_DataRate_1Mbps;
     nrf.rf.power = no_attenuation;
     nrf.address_width = 3;
+    nrf.crc = crc_16bit;
+    nrf.irq.rx = 0;
+    nrf.irq.tx = 0;
+    nrf.irq.max_rt = 0;
     nrf.spi = &hspi0;
 
     NRF24L01_Init(&nrf);
@@ -124,7 +129,7 @@ int main()
     {
         HAL_DelayMs(500);
         xprintf("Trans-zhmans\n");
-        uint8_t lula[] = {0x97, 0x63};
+        uint8_t lula[] = {0x43, 0x33};
         uint8_t status = NRF24L01_Send(&nrf, lula);
         xprintf("status: %02X\n", status);
         HAL_DelayMs(500);

@@ -28,7 +28,20 @@ void NRF24L01_Init(NRF24L01_t *nrf)
 {
     CE_DOWN(nrf);
     HAL_DelayUs(4500);
-    NRF24L01_WriteReg(nrf, NRF_CONFIG, 0b00001010);
+    //NRF24L01_WriteReg(nrf, NRF_CONFIG, 0b00001010);
+    uint8_t config = NRF_CONFIG_PWR_UP_M;
+    switch (nrf->crc)
+    {
+        case crc_disabled: config |= 0; break;
+        case crc_8bit: config |= NRF_CONFIG_EN_CRC_M; break;
+        case crc_16bit: config |= NRF_CONFIG_EN_CRC_M | NRF_CONFIG_CRCO_M; break;
+        default: config |= 0;
+    }
+    if (nrf->irq.rx != 0) config |= NRF_CONFIG_RX_DR_M;
+    if (nrf->irq.tx != 0) config |= NRF_CONFIG_TX_DS_M;
+    if (nrf->irq.max_rt != 0) config |= NRF_CONFIG_MAX_RT_M;
+    NRF24L01_WriteReg(nrf, NRF_CONFIG, config);
+
     HAL_DelayUs(4500);
     NRF24L01_WriteReg(nrf, NRF_EN_AA, nrf->pipe);
     NRF24L01_WriteReg(nrf, NRF_EN_RXADDR, nrf->pipe);

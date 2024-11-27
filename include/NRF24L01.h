@@ -109,6 +109,12 @@ typedef struct __NRF24L01_t
         NRF24L01_RF_DR_t datarate;
         NRF24L01_RF_PWR_t power;
     } rf;
+    NRF24L01_CRC_t crc;
+    struct {
+        uint8_t rx;
+        uint8_t tx;
+        uint8_t max_rt;
+    } irq;
 } NRF24L01_t;
 
 
