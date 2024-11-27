@@ -38,7 +38,8 @@ void NRF24_Init(NRF24L01_t *nrf)
     NRF24_WriteReg(nrf, DYNPD, 0); // dynamic payload length off
     NRF24_WriteReg(nrf, STATUS, 0b01110000); // reset interrupt flags
     NRF24_WriteReg(nrf, RF_CH, nrf->rf_channel); // 2400+76=2476MHz radio freq
-    NRF24_WriteReg(nrf, RF_SETUP, 0x06); // 1Mbps, 0dBm
+    //NRF24_WriteReg(nrf, RF_SETUP, 0x06); // 1Mbps, 0dBm
+    NRF24_WriteReg(nrf, RF_SETUP, nrf->rf_datarate | nrf->rf_power);
     NRF24_WriteBuf(nrf, TX_ADDR, (uint8_t*)&(nrf->tx_addr), 5);
     NRF24_WriteBuf(nrf, RX_ADDR_P0, (uint8_t*)&(nrf->tx_addr), 5);
     NRF24_WriteBuf(nrf, RX_ADDR_P1, (uint8_t*)&(nrf->rx_addr), 5);

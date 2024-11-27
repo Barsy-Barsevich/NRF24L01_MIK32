@@ -2,23 +2,6 @@
 
 
 //------------------------------------------------
-#define CS_GPIO_PORT GPIOA
-#define CS_PIN GPIO_PIN_4
-#define CS_ON HAL_GPIO_WritePin(CS_GPIO_PORT, CS_PIN, GPIO_PIN_RESET)
-#define CS_OFF HAL_GPIO_WritePin(CS_GPIO_PORT, CS_PIN, GPIO_PIN_SET)
-#define CE_GPIO_PORT GPIOA
-#define CE_PIN GPIO_PIN_3
-#define CE_RESET HAL_GPIO_WritePin(CE_GPIO_PORT, CE_PIN, GPIO_PIN_RESET)
-#define CE_SET HAL_GPIO_WritePin(CE_GPIO_PORT, CE_PIN, GPIO_PIN_SET)
-#define IRQ_GPIO_PORT GPIOA
-#define IRQ_PIN GPIO_PIN_2
-#define IRQ HAL_GPIO_ReadPin(IRQ_GPIO_PORT, IRQ_PIN)
-#define LED_GPIO_PORT GPIOC
-#define LED_PIN GPIO_PIN_13
-#define LED_ON HAL_GPIO_WritePin(LED_GPIO_PORT, LED_PIN, GPIO_PIN_RESET)
-#define LED_OFF HAL_GPIO_WritePin(LED_GPIO_PORT, LED_PIN, GPIO_PIN_SET)
-#define LED_TGL HAL_GPIO_TogglePin(LED_GPIO_PORT, LED_PIN)
-//------------------------------------------------
 #define ACTIVATE 0x50 //
 #define RD_RX_PLOAD 0x61 // Define RX payload register address
 #define WR_TX_PLOAD 0xA0 // Define TX payload register address
@@ -57,6 +40,11 @@
 #define RX_DR 0x40 //Data Ready RX FIFO interrupt
 #define TX_DS 0x20 //Data Sent TX FIFO interrupt
 #define MAX_RT 0x10 //Maximum number of TX retransmits interrupt
+
+#define NRF_RF_SETUP_RF_DR_LOW          5
+#define NRF_RF_SETUP_RF_DR_HIGH         3
+#define NRF_RF_SETUP_RF_PWR             1
+
 //------------------------------------------------
 #define W_REGISTER 0x20 //запись в регистр
 //------------------------------------------------
@@ -72,6 +60,23 @@
 #define PIPE_5      0x20
 
 
+typedef enum __RF_DataRate{
+    RF_DataRate_250kbps = (1<<NRF_RF_SETUP_RF_DR_LOW),
+    RF_DataRate_1Mbps = 0,
+    RF_DataRate_2Mbps = (1<<NRF_RF_SETUP_RF_DR_HIGH),
+} NRF24L01_RF_DR_t;
+
+typedef enum __RF_Power {
+    power_0dBm = 0b11<<NRF_RF_SETUP_RF_PWR,
+    power_m6dBm = 0b10<<NRF_RF_SETUP_RF_PWR,
+    power_m12dBm = 0b01<<NRF_RF_SETUP_RF_PWR,
+    power_m18dBm = 0b00<<NRF_RF_SETUP_RF_PWR,
+    no_attenuation = 0b11<<NRF_RF_SETUP_RF_PWR,
+    attenuate_in_2_times = 0b10<<NRF_RF_SETUP_RF_PWR,
+    attenuate_in_4_times = 0b01<<NRF_RF_SETUP_RF_PWR,
+    attenuate_in_8_times = 0b00<<NRF_RF_SETUP_RF_PWR,
+} NRF24L01_RF_PWR_t;
+
 
 typedef struct __NRF24L01_t
 {
@@ -84,6 +89,8 @@ typedef struct __NRF24L01_t
     uint64_t rx_addr;
     uint8_t payload_width;
     uint8_t rf_channel;
+    NRF24L01_RF_DR_t rf_datarate;
+    NRF24L01_RF_PWR_t rf_power;
 } NRF24L01_t;
 
 
