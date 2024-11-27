@@ -61,7 +61,11 @@ int main()
     nrf.rx_addr = 0xB3B4B5B6F1;
     nrf.tx_addr = 0xB3B4B5B6F1;
     nrf.rf_channel = 76;
+    nrf.rf_datarate = RF_DataRate_1Mbps;
+    nrf.rf_power = no_attenuation;
+    nrf.address_width = 3;
     nrf.spi = &hspi0;
+
     NRF24_Init(&nrf);
 
     uint8_t dt_reg = 0;
@@ -107,6 +111,7 @@ int main()
     nrf.rf_channel = 76;
     nrf.rf_datarate = RF_DataRate_1Mbps;
     nrf.rf_power = no_attenuation;
+    nrf.address_width = 3;
     nrf.spi = &hspi0;
 
     NRF24_Init(&nrf);
@@ -117,7 +122,7 @@ int main()
     {
         HAL_DelayMs(500);
         xprintf("Trans-zhmans\n");
-        uint8_t lula[] = {0x31, 0x48};
+        uint8_t lula[] = {0x23, 0x11};
         uint8_t status = NRF24L01_Send(&nrf, lula);
         xprintf("status: %02X\n", status);
         HAL_DelayMs(500);

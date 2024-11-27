@@ -91,6 +91,7 @@ typedef struct __NRF24L01_t
     uint8_t rf_channel;
     NRF24L01_RF_DR_t rf_datarate;
     NRF24L01_RF_PWR_t rf_power;
+    uint8_t address_width;
 } NRF24L01_t;
 
 
@@ -107,3 +108,8 @@ void NRF24_FlushRX(NRF24L01_t *nrf);
 void NRF24_FlushTX(NRF24L01_t *nrf);
 void NRF24_Transmit(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan);
 uint8_t NRF24L01_Send(NRF24L01_t *nrf, uint8_t *buf);
+
+HAL_StatusTypeDef NRF24L01_RX_data_ready(NRF24L01_t *nrf);
+HAL_StatusTypeDef NRF24L01_TX_data_sent(NRF24L01_t *nrf);
+
+void NRF24L01_Read(NRF24L01_t *nrf, uint8_t *buf);

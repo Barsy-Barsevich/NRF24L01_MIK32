@@ -32,7 +32,17 @@ void NRF24_Init(NRF24L01_t *nrf)
     HAL_DelayUs(4500);
     NRF24_WriteReg(nrf, EN_AA, nrf->pipe);
     NRF24_WriteReg(nrf, EN_RXADDR, nrf->pipe);
-    NRF24_WriteReg(nrf, SETUP_AW, 0b11); // address field 5 bytes
+    //NRF24_WriteReg(nrf, SETUP_AW, 0b11); // address field 5 bytes
+    uint8_t setup_aw;
+    switch (nrf->address_width)
+    {
+        case 3: setup_aw = 0b01; break;
+        case 4: setup_aw = 0b10; break;
+        case 5: setup_aw = 0b11; break;
+        default: setup_aw = 0b11;
+    }
+    NRF24_WriteReg(nrf, SETUP_AW, setup_aw);
+    
     NRF24_WriteReg(nrf, SETUP_RETR, 0x5F); // // 1500us, 15 retrans
     NRF24_WriteReg(nrf, FEATURE, 0);
     NRF24_WriteReg(nrf, DYNPD, 0); // dynamic payload length off
@@ -163,4 +173,21 @@ uint8_t NRF24L01_Send(NRF24L01_t *nrf, uint8_t *buf)
     // }
     regval = NRF24_ReadReg(nrf, OBSERVE_TX);
     return regval;
+}
+
+HAL_StatusTypeDef NRF24L01_RX_data_ready(NRF24L01_t *nrf)
+{
+    uint8_t status = NRF24L01_ReadReg(nrf, STATUS);
+    return (status & RX_DR) != 0 ? HAL_OK : HAL_BUSY;
+}
+
+HAL_StatusTypeDef NRF24L01_TX_data_sent(NRF24L01_t *nrf)
+{
+    uint8_t status = NRF24L01_ReadReg(nrf, STATUS);
+    return (status & TX_DS) != 0 ? HAL_OK : HAL_BUSY;
+}
+
+void NRF24L01_Read(NRF24L01_t *nrf, uint8_t *buf)
+{
+    NRF24L01_ReadBuf(&nrf, RD_RX_PLOAD, buf, nrf->payload_width);
 }
