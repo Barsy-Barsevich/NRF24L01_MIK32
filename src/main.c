@@ -36,8 +36,8 @@ void HAL_DelayMs(uint32_t ms)
     HAL_Time_SCR1TIM_DelayMs(ms);
 }
 
-//#define RECEIVE
-#define TRANSMIT
+#define RECEIVE
+//#define TRANSMIT
 
 NRF24L01_t nrf;
 
@@ -55,15 +55,14 @@ int main()
     nrf.interface.cs = SPI_CS_0;
     nrf.payload_width = 32;
     
-    nrf.pipe.rx0_addr = 0x7878787878;
-    nrf.pipe.rx1_addr = 0xB3B4B5B6F1;
-    nrf.pipe.rx2_addr = 0xCD;
-    nrf.pipe.rx3_addr = 0xA3;
-    nrf.pipe.rx4_addr = 0x0F;
-    nrf.pipe.rx5_addr = 0x12;
+    nrf.pipe.common_rx_msaddr = 0xB3B4B5B6;
+    nrf.pipe.rx1_lsaddr = 0xF1;
+    nrf.pipe.rx2_lsaddr = 0xCD;
+    nrf.pipe.rx3_lsaddr = 0xA3;
+    nrf.pipe.rx4_lsaddr = 0x0F;
+    nrf.pipe.rx5_lsaddr = 0x12;
     nrf.pipe.tx_addr = 0x7878787878;
 
-    nrf.pipe.rx0_en = true;
     nrf.pipe.rx1_en = true;
     nrf.pipe.rx2_en = true;
     nrf.pipe.rx3_en = true;
