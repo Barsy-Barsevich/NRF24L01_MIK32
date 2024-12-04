@@ -58,7 +58,7 @@ int main()
     // nrf.rx_addr = 0xB3B4B5B6F1;
     // nrf.tx_addr = 0xB3B4B5B6F1;
     nrf.pipe.rx0_addr = 0xB3B4B5B6F1;
-    nrf.pipe.rx1_addr = 0;
+    nrf.pipe.rx1_addr = 0xB3B4B5B6F1;
     nrf.pipe.rx2_addr = 0;
     nrf.pipe.rx3_addr = 0;
     nrf.pipe.rx4_addr = 0;
@@ -140,7 +140,15 @@ int main()
     nrf.ce_port = GPIO_2;
     nrf.cs = SPI_CS_0;
     nrf.payload_width = 32;
-    //nrf.pipe = PIPE_0;
+    
+    nrf.pipe.rx0_addr = 0x7878787878;
+    nrf.pipe.rx1_addr = 0x7878787878;
+    nrf.pipe.rx2_addr = 0;
+    nrf.pipe.rx3_addr = 0;
+    nrf.pipe.rx4_addr = 0;
+    nrf.pipe.rx5_addr = 0;
+    nrf.pipe.tx_addr = 0x7878787878;
+
     nrf.rx_pipe = 0;
     nrf.tx_pipe = 0;
 

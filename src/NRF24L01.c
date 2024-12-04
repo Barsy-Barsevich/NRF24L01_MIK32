@@ -81,13 +81,12 @@ void NRF24L01_Init(NRF24L01_t *nrf)
     NRF24L01_WriteReg(nrf, NRF_RF_CH, nrf->rf.channel);
     NRF24L01_WriteReg(nrf, NRF_RF_SETUP, nrf->rf.datarate | nrf->rf.power);
 
-    // NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)&(nrf->tx_addr), 5);
-    // NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)&(nrf->tx_addr), 5);
-    // NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)&(nrf->rx_addr), 5);
-    NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)(pipe_addr+nrf->tx_pipe), 5);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)(pipe_addr+nrf->tx_pipe), 5);
-    // NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)(pipe_addr+nrf->rx_addr), 5);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)(pipe_addr+nrf->rx_pipe), 5);
+    //NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)(pipe_addr+nrf->tx_pipe), 5);
+    //NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)(pipe_addr+nrf->tx_pipe), 5);
+    //NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)(pipe_addr+nrf->rx_pipe), 5);
+    NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)&(nrf->pipe.tx_addr), 5);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)&(nrf->pipe.rx0_addr), 5);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)&(nrf->pipe.rx1_addr), 5);
 
     NRF24L01_WriteReg(nrf, NRF_RX_PW_P0, nrf->payload_width);
     NRF24L01_WriteReg(nrf, NRF_RX_PW_P1, nrf->payload_width);
