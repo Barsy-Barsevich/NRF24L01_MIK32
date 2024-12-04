@@ -53,7 +53,7 @@ int main()
     nrf.ce_pin = GPIO_PIN_7;
     nrf.ce_port = GPIO_2;
     nrf.cs = SPI_CS_0;
-    nrf.payload_width = 2;
+    nrf.payload_width = 32;
     // nrf.pipe = PIPE_1;
     // nrf.rx_addr = 0xB3B4B5B6F1;
     // nrf.tx_addr = 0xB3B4B5B6F1;
@@ -72,7 +72,7 @@ int main()
     NRF24L01_Init(&nrf);
 
     uint8_t dt_reg = 0;
-    uint8_t buf1[10];
+    uint8_t buf1[32];
 
     while (1)
     {
@@ -82,7 +82,7 @@ int main()
             HAL_DelayMs(10);
         }
         uint8_t pipe = NRF24L01_Read(&nrf, buf1);
-        xprintf("\nRead: %02X-%02X; pipe %u\n", buf1[0], buf1[1], pipe);
+        xprintf("\nRead: %s; pipe %u\n", buf1, pipe);
     }
 
     while (1)
@@ -121,8 +121,10 @@ int main()
     nrf.ce_pin = GPIO_PIN_7;
     nrf.ce_port = GPIO_2;
     nrf.cs = SPI_CS_0;
-    nrf.payload_width = 2;
-    nrf.pipe = PIPE_0;
+    nrf.payload_width = 32;
+    //nrf.pipe = PIPE_0;
+    nrf.rx_pipe = 0;
+    nrf.tx_pipe = 0;
     nrf.rx_addr = 0xB3B4B5B6F1;
     nrf.tx_addr = 0xB3B4B5B6F1;
     nrf.rf.channel = 76;
@@ -143,7 +145,7 @@ int main()
     {
         HAL_DelayMs(500);
         xprintf("Trans-zhmans\n");
-        uint8_t lula[] = {0x43, 0x33};
+        uint8_t lula[] = "String of 32 symbols transmitted";
         uint8_t status = NRF24L01_Send(&nrf, lula);
         xprintf("status: %02X\n", status);
         HAL_DelayMs(500);
