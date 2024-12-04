@@ -36,8 +36,8 @@ void HAL_DelayMs(uint32_t ms)
     HAL_Time_SCR1TIM_DelayMs(ms);
 }
 
-#define RECEIVE
-//#define TRANSMIT
+//#define RECEIVE
+#define TRANSMIT
 
 NRF24L01_t nrf;
 
@@ -143,6 +143,14 @@ int main()
     //nrf.pipe = PIPE_0;
     nrf.rx_pipe = 0;
     nrf.tx_pipe = 0;
+
+    nrf.pipe.rx0_en = true;
+    nrf.pipe.rx1_en = false;
+    nrf.pipe.rx2_en = false;
+    nrf.pipe.rx3_en = false;
+    nrf.pipe.rx4_en = false;
+    nrf.pipe.rx5_en = false;
+
     nrf.rx_addr = 0xB3B4B5B6F1;
     nrf.tx_addr = 0xB3B4B5B6F1;
     nrf.rf.channel = 76;
