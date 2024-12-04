@@ -60,7 +60,7 @@ int main()
         while (NRF24L01_RX_data_ready(&nrf) != HAL_OK)
         {
             xprintf(".");
-            HAL_DelayMs(20);
+            HAL_DelayMs(50);
         }
         uint8_t source_pipe = NRF24L01_Read(&nrf, buffer);
         xprintf("\nRead: %s; pipe %u\n", buffer, source_pipe);
@@ -69,9 +69,8 @@ int main()
     while (1)
     {
         HAL_DelayMs(500);
-        //uint8_t str[] = "String of 32 symbols transmitted";
-        sprintf(buffer, "Data packet received, time %u", HAL_Millis());
-        uint8_t status = NRF24L01_Send(&nrf, buffer);
+        sprintf(buffer, "Packet received, time %u", HAL_Millis());
+        // uint8_t status = NRF24L01_Send(&nrf, buffer);
         // xprintf("status: %02X\n", status);
         HAL_DelayMs(500);
         // dt_reg = NRF24L01_ReadReg(&nrf, NRF_CONFIG);
