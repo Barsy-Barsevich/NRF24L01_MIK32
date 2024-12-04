@@ -36,8 +36,8 @@ void HAL_DelayMs(uint32_t ms)
     HAL_Time_SCR1TIM_DelayMs(ms);
 }
 
-#define RECEIVE
-//#define TRANSMIT
+//#define RECEIVE
+#define TRANSMIT
 
 NRF24L01_t nrf;
 
@@ -50,9 +50,9 @@ int main()
     SPI0_Init();
     GPIO_Init();
 
-    nrf.ce_pin = GPIO_PIN_7;
-    nrf.ce_port = GPIO_2;
-    nrf.cs = SPI_CS_0;
+    nrf.interface.ce_pin = GPIO_PIN_7;
+    nrf.interface.ce_port = GPIO_2;
+    nrf.interface.cs = SPI_CS_0;
     nrf.payload_width = 32;
     
     nrf.pipe.rx0_addr = 0x7878787878;
@@ -60,7 +60,7 @@ int main()
     nrf.pipe.rx2_addr = 0xCD;
     nrf.pipe.rx3_addr = 0xA3;
     nrf.pipe.rx4_addr = 0x0F;
-    nrf.pipe.rx5_addr = 0x05;
+    nrf.pipe.rx5_addr = 0x12;
     nrf.pipe.tx_addr = 0x7878787878;
 
     nrf.pipe.rx0_en = true;
@@ -75,10 +75,10 @@ int main()
     nrf.rf.power = no_attenuation;
     nrf.address_width = 3;
     nrf.crc = crc_16bit;
-    nrf.irq.rx = 0;
-    nrf.irq.tx = 0;
-    nrf.irq.max_rt = 0;
-    nrf.spi = &hspi0;
+    nrf.irq.rx = false;
+    nrf.irq.tx = false;
+    nrf.irq.max_rt = false;
+    nrf.interface.spi = &hspi0;
 
     NRF24L01_Init(&nrf);
 
@@ -129,20 +129,19 @@ int main()
     SPI0_Init();
     GPIO_Init();
 
-    nrf.ce_pin = GPIO_PIN_7;
-    nrf.ce_port = GPIO_2;
-    nrf.cs = SPI_CS_0;
+    nrf.interface.ce_pin = GPIO_PIN_7;
+    nrf.interface.ce_port = GPIO_2;
+    nrf.interface.cs = SPI_CS_0;
     nrf.payload_width = 32;
     
-    nrf.pipe.rx0_addr = 0xB3B4B5B6A3;
-    nrf.pipe.rx1_addr = 0xB3B4B5B6F1;
-    nrf.pipe.rx2_addr = 0xCD;
-    nrf.pipe.rx3_addr = 0xA3;
-    nrf.pipe.rx4_addr = 0x0F;
-    nrf.pipe.rx5_addr = 0x05;
-    nrf.pipe.tx_addr = 0xB3B4B5B6A3;
+    nrf.pipe.common_rx_msaddr = 0xB3B4B5B6;
+    nrf.pipe.rx1_lsaddr = 0xF1;
+    nrf.pipe.rx2_lsaddr = 0xCD;
+    nrf.pipe.rx3_lsaddr = 0xA3;
+    nrf.pipe.rx4_lsaddr = 0x0F;
+    nrf.pipe.rx5_lsaddr = 0x05;
+    nrf.pipe.tx_addr = 0xB3B4B5B6CD;
 
-    nrf.pipe.rx0_en = true;
     nrf.pipe.rx1_en = false;
     nrf.pipe.rx2_en = false;
     nrf.pipe.rx3_en = false;
@@ -157,7 +156,7 @@ int main()
     nrf.irq.rx = 0;
     nrf.irq.tx = 0;
     nrf.irq.max_rt = 0;
-    nrf.spi = &hspi0;
+    nrf.interface.spi = &hspi0;
 
     NRF24L01_Init(&nrf);
 

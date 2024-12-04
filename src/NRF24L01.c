@@ -1,15 +1,6 @@
 
 #include "NRF24L01.h"
 
-// const uint64_t pipe_addr[] = {
-//     0x7878787878, //< 0
-//     0xB3B4B5B6F1, //< 1
-//     0xB3B4B5B6CD, //< 2
-//     0xB3B4B5B6A3, //< 3
-//     0xB3B4B5B60F, //< 4
-//     0xB3B4B5B605  //< 5
-// };
-
 void NRF24L01_RX_Mode(NRF24L01_t *nrf)
 {
     uint8_t regval=0x00;
@@ -47,14 +38,13 @@ void NRF24L01_Init(NRF24L01_t *nrf)
         case crc_16bit: config |= NRF_CONFIG_EN_CRC_M | NRF_CONFIG_CRCO_M; break;
         default: config |= 0;
     }
-    if (nrf->irq.rx != 0) config |= NRF_CONFIG_RX_DR_M;
-    if (nrf->irq.tx != 0) config |= NRF_CONFIG_TX_DS_M;
-    if (nrf->irq.max_rt != 0) config |= NRF_CONFIG_MAX_RT_M;
+    if (nrf->irq.rx) config |= NRF_CONFIG_RX_DR_M;
+    if (nrf->irq.tx) config |= NRF_CONFIG_TX_DS_M;
+    if (nrf->irq.max_rt) config |= NRF_CONFIG_MAX_RT_M;
     NRF24L01_WriteReg(nrf, NRF_CONFIG, config);
 
     HAL_DelayUs(4500);
-    uint8_t en_aa = 0;
-    if (nrf->pipe.rx0_en) en_aa |= 0x01;
+    uint8_t en_aa = 0x01; //< rx0 enabled by default
     if (nrf->pipe.rx1_en) en_aa |= 0x02;
     if (nrf->pipe.rx2_en) en_aa |= 0x04;
     if (nrf->pipe.rx3_en) en_aa |= 0x08;
@@ -80,12 +70,13 @@ void NRF24L01_Init(NRF24L01_t *nrf)
     NRF24L01_WriteReg(nrf, NRF_RF_SETUP, nrf->rf.datarate | nrf->rf.power);
 
     NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)&(nrf->pipe.tx_addr), 5);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)&(nrf->pipe.rx0_addr), 5);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)&(nrf->pipe.rx1_addr), 5);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P2, (uint8_t*)&(nrf->pipe.rx2_addr), 1);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P3, (uint8_t*)&(nrf->pipe.rx3_addr), 1);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P4, (uint8_t*)&(nrf->pipe.rx4_addr), 1);
-    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P5, (uint8_t*)&(nrf->pipe.rx5_addr), 1);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P0, (uint8_t*)&(nrf->pipe.tx_addr), 5);
+    uint64_t rx_addr = (uint64_t)nrf->pipe.common_rx_msaddr << 8 | nrf->pipe.rx1_lsaddr;
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P1, (uint8_t*)&(rx_addr), 5);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P2, &(nrf->pipe.rx2_lsaddr), 1);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P3, &(nrf->pipe.rx3_lsaddr), 1);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P4, &(nrf->pipe.rx4_lsaddr), 1);
+    NRF24L01_WriteBuf(nrf, NRF_RX_ADDR_P5, &(nrf->pipe.rx5_lsaddr), 1);
 
     NRF24L01_WriteReg(nrf, NRF_RX_PW_P0, nrf->payload_width);
     NRF24L01_WriteReg(nrf, NRF_RX_PW_P1, nrf->payload_width);
@@ -99,25 +90,25 @@ void NRF24L01_Init(NRF24L01_t *nrf)
 
 void CE_DOWN(NRF24L01_t *nrf)
 {
-    HAL_GPIO_WritePin(nrf->ce_port, nrf->ce_pin, 0);
+    HAL_GPIO_WritePin(nrf->interface.ce_port, nrf->interface.ce_pin, 0);
 }
 
 void CE_UP(NRF24L01_t *nrf)
 {
-    HAL_GPIO_WritePin(nrf->ce_port, nrf->ce_pin, 1);
+    HAL_GPIO_WritePin(nrf->interface.ce_port, nrf->interface.ce_pin, 1);
 }
 
 uint8_t NRF24L01_ReadReg(NRF24L01_t *nrf, uint8_t addr)
 {
     uint8_t data = 0, cmd;
-    HAL_SPI_CS_Enable(nrf->spi, nrf->cs);
-    HAL_SPI_Exchange(nrf->spi, &addr, &data, 1, SPI_TIMEOUT_DEFAULT);
+    HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
+    HAL_SPI_Exchange(nrf->interface.spi, &addr, &data, 1, SPI_TIMEOUT_DEFAULT);
     if (addr != NRF_STATUS)
     {
         cmd = 0xFF;
-        HAL_SPI_Exchange(nrf->spi, &cmd, &data, 1, SPI_TIMEOUT_DEFAULT);
+        HAL_SPI_Exchange(nrf->interface.spi, &cmd, &data, 1, SPI_TIMEOUT_DEFAULT);
     }
-    HAL_SPI_CS_Disable(nrf->spi);
+    HAL_SPI_CS_Disable(nrf->interface.spi);
     return data;
 }
 
@@ -125,70 +116,70 @@ void NRF24L01_WriteReg(NRF24L01_t *nrf, uint8_t addr, uint8_t data)
 {
     addr |= W_REGISTER;
     uint8_t dummy;
-    HAL_SPI_CS_Enable(nrf->spi, nrf->cs);
-    HAL_SPI_Exchange(nrf->spi, &addr, &dummy, 1, SPI_TIMEOUT_DEFAULT);
-    HAL_SPI_Exchange(nrf->spi, &data, &dummy, 1, SPI_TIMEOUT_DEFAULT);
-    HAL_SPI_CS_Disable(nrf->spi);
+    HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
+    HAL_SPI_Exchange(nrf->interface.spi, &addr, &dummy, 1, SPI_TIMEOUT_DEFAULT);
+    HAL_SPI_Exchange(nrf->interface.spi, &data, &dummy, 1, SPI_TIMEOUT_DEFAULT);
+    HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
 void NRF24L01_ReadBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan)
 {
-    HAL_SPI_CS_Enable(nrf->spi, nrf->cs);
+    HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
     uint8_t dummy;
-    HAL_SPI_Exchange(nrf->spi, &addr, &dummy, 1, SPI_TIMEOUT_DEFAULT);
+    HAL_SPI_Exchange(nrf->interface.spi, &addr, &dummy, 1, SPI_TIMEOUT_DEFAULT);
     dummy = 0xFF;
     for (uint8_t i=0; i<quan; i++)
     {
-        HAL_SPI_Exchange(nrf->spi, &dummy, buf+i, 1, SPI_TIMEOUT_DEFAULT);
+        HAL_SPI_Exchange(nrf->interface.spi, &dummy, buf+i, 1, SPI_TIMEOUT_DEFAULT);
     }
-    HAL_SPI_CS_Disable(nrf->spi);
+    HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
 void NRF24L01_WriteBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan)
 {
     addr |= W_REGISTER;
-    HAL_SPI_CS_Enable(nrf->spi, nrf->cs);
+    HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
     uint8_t dummy;
-    HAL_SPI_Exchange(nrf->spi, &addr, &dummy, 1, SPI_TIMEOUT_DEFAULT);
+    HAL_SPI_Exchange(nrf->interface.spi, &addr, &dummy, 1, SPI_TIMEOUT_DEFAULT);
     HAL_DelayUs(1000);
     for (uint8_t i=0; i<quan; i++)
     {
-        HAL_SPI_Exchange(nrf->spi, buf+i, &dummy, 1, SPI_TIMEOUT_DEFAULT);
+        HAL_SPI_Exchange(nrf->interface.spi, buf+i, &dummy, 1, SPI_TIMEOUT_DEFAULT);
     }
-    HAL_SPI_CS_Disable(nrf->spi);
+    HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
 void NRF24L01_FlushRX(NRF24L01_t *nrf)
 {
-    HAL_SPI_CS_Enable(nrf->spi, nrf->cs);
+    HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
     uint8_t cmd = FLUSH_RX, dummy;
-    HAL_SPI_Exchange(nrf->spi, &cmd, &dummy, 1, SPI_TIMEOUT_DEFAULT);
+    HAL_SPI_Exchange(nrf->interface.spi, &cmd, &dummy, 1, SPI_TIMEOUT_DEFAULT);
     HAL_DelayUs(1000);
-    HAL_SPI_CS_Disable(nrf->spi);
+    HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
 void NRF24L01_FlushTX(NRF24L01_t *nrf)
 {
-    HAL_SPI_CS_Enable(nrf->spi, nrf->cs);
+    HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
     uint8_t cmd = FLUSH_TX, dummy;
-    HAL_SPI_Exchange(nrf->spi, &cmd, &dummy, 1, SPI_TIMEOUT_DEFAULT);
+    HAL_SPI_Exchange(nrf->interface.spi, &cmd, &dummy, 1, SPI_TIMEOUT_DEFAULT);
     HAL_DelayUs(1000);
-    HAL_SPI_CS_Disable(nrf->spi);
+    HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
 #include "xprintf.h"
 void NRF24L01_Transmit(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan)
 {
     CE_DOWN(nrf);
-    HAL_SPI_CS_Enable(nrf->spi, nrf->cs);
+    HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
     uint8_t dummy;
-    HAL_SPI_Exchange(nrf->spi, &addr, &dummy, 1, SPI_TIMEOUT_DEFAULT);//отправим адрес в шину
+    HAL_SPI_Exchange(nrf->interface.spi, &addr, &dummy, 1, SPI_TIMEOUT_DEFAULT);//отправим адрес в шину
     HAL_DelayUs(1000);
     for (uint8_t i=0; i<quan; i++)
     {
-        HAL_SPI_Exchange(nrf->spi, buf+i, &dummy, 1, SPI_TIMEOUT_DEFAULT);//отправим данные в буфер
+        HAL_SPI_Exchange(nrf->interface.spi, buf+i, &dummy, 1, SPI_TIMEOUT_DEFAULT);//отправим данные в буфер
     }
-    HAL_SPI_CS_Disable(nrf->spi);
+    HAL_SPI_CS_Disable(nrf->interface.spi);
     CE_UP(nrf);
 }
 

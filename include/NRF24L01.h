@@ -85,15 +85,6 @@
 #define PIPE_4      0x10
 #define PIPE_5      0x20
 
-// const uint64_t pipe_addr[] = {
-//     0x7878787878, //< 0
-//     0xB3B4B5B6F1, //< 1
-//     0xB3B4B5B6CD, //< 2
-//     0xB3B4B5B6A3, //< 3
-//     0xB3B4B5B60F, //< 4
-//     0xB3B4B5B605  //< 5
-// };
-
 
 typedef enum __RF_DataRate{
     RF_DataRate_250kbps = (1<<NRF_RF_SETUP_RF_DR_LOW),
@@ -119,25 +110,27 @@ typedef enum __CRC {
 } NRF24L01_CRC_t;
 
 
+
 typedef struct __NRF24L01_t
 {
-    SPI_HandleTypeDef *spi;
-    uint16_t cs;
-    GPIO_TypeDef *ce_port;
-    HAL_PinsTypeDef ce_pin;
+    struct __Interface
+    {
+        SPI_HandleTypeDef *spi;
+        uint16_t cs;
+        GPIO_TypeDef *ce_port;
+        HAL_PinsTypeDef ce_pin;
+    } interface;
 
-    uint8_t rx_pipe;
-    uint8_t tx_pipe;
-    struct {
+    struct
+    {
+        uint32_t common_rx_msaddr;
+        uint8_t rx1_lsaddr;
+        uint8_t rx2_lsaddr;
+        uint8_t rx3_lsaddr;
+        uint8_t rx4_lsaddr;
+        uint8_t rx5_lsaddr;
         uint64_t tx_addr;
-        uint64_t rx0_addr;
-        uint64_t rx1_addr;
-        uint8_t rx2_addr;
-        uint8_t rx3_addr;
-        uint8_t rx4_addr;
-        uint8_t rx5_addr;
         bool tx_en;
-        bool rx0_en;
         bool rx1_en;
         bool rx2_en;
         bool rx3_en;
@@ -156,9 +149,9 @@ typedef struct __NRF24L01_t
         NRF24L01_RF_PWR_t power;
     } rf;
     struct __IRQ_pin_sources {
-        uint8_t rx;
-        uint8_t tx;
-        uint8_t max_rt;
+        bool rx;
+        bool tx;
+        bool max_rt;
     } irq;
 } NRF24L01_t;
 
