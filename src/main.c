@@ -57,8 +57,26 @@ int main()
     // nrf.pipe = PIPE_1;
     // nrf.rx_addr = 0xB3B4B5B6F1;
     // nrf.tx_addr = 0xB3B4B5B6F1;
+    nrf.pipe.rx0_addr = 0xB3B4B5B6F1;
+    nrf.pipe.rx1_addr = 0;
+    nrf.pipe.rx2_addr = 0;
+    nrf.pipe.rx3_addr = 0;
+    nrf.pipe.rx4_addr = 0;
+    nrf.pipe.rx5_addr = 0;
+    nrf.pipe.tx_addr = 0xB3B4B5B6F1;
+
+
+
     nrf.rx_pipe = 1;
     nrf.tx_pipe = 1;
+
+    nrf.pipe.rx0_en = false;
+    nrf.pipe.rx1_en = true;
+    nrf.pipe.rx2_en = false;
+    nrf.pipe.rx3_en = false;
+    nrf.pipe.rx4_en = false;
+    nrf.pipe.rx5_en = false;
+
     nrf.rf.channel = 76;
     nrf.rf.datarate = RF_DataRate_1Mbps;
     nrf.rf.power = no_attenuation;

@@ -75,6 +75,7 @@
 //------------------------------------------------
 #include "mik32_hal_spi.h"
 #include "mik32_hal_gpio.h"
+#include "stdbool.h"
 //------------------------------------------------
 
 #define PIPE_0      0x01
@@ -127,6 +128,22 @@ typedef struct __NRF24L01_t
 
     uint8_t rx_pipe;
     uint8_t tx_pipe;
+    struct {
+        uint64_t tx_addr;
+        uint64_t rx0_addr;
+        uint64_t rx1_addr;
+        uint8_t rx2_addr;
+        uint8_t rx3_addr;
+        uint8_t rx4_addr;
+        uint8_t rx5_addr;
+        bool tx_en;
+        bool rx0_en;
+        bool rx1_en;
+        bool rx2_en;
+        bool rx3_en;
+        bool rx4_en;
+        bool rx5_en;
+    } pipe;
     uint8_t address_width;
     uint64_t tx_addr;
     uint64_t rx_addr;

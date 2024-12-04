@@ -53,8 +53,18 @@ void NRF24L01_Init(NRF24L01_t *nrf)
     NRF24L01_WriteReg(nrf, NRF_CONFIG, config);
 
     HAL_DelayUs(4500);
-    NRF24L01_WriteReg(nrf, NRF_EN_AA, (1<<nrf->rx_pipe));
-    NRF24L01_WriteReg(nrf, NRF_EN_RXADDR, (1<<nrf->rx_pipe));
+    //NRF24L01_WriteReg(nrf, NRF_EN_AA, (1<<nrf->rx_pipe));
+    //NRF24L01_WriteReg(nrf, NRF_EN_RXADDR, (1<<nrf->rx_pipe));
+    uint8_t en_aa = 0;
+    if (nrf->pipe.rx0_en) en_aa |= 0x01;
+    if (nrf->pipe.rx0_en) en_aa |= 0x02;
+    if (nrf->pipe.rx0_en) en_aa |= 0x04;
+    if (nrf->pipe.rx0_en) en_aa |= 0x08;
+    if (nrf->pipe.rx0_en) en_aa |= 0x10;
+    if (nrf->pipe.rx0_en) en_aa |= 0x20;
+
+
+
     uint8_t setup_aw;
     switch (nrf->address_width)
     {
