@@ -1,6 +1,9 @@
 
 #include "NRF24L01.h"
 
+/**
+ * @brief Переход в режим приема данных
+ */
 void NRF24L01_RX_Mode(NRF24L01_t *nrf)
 {
     uint8_t regval=0x00;
@@ -15,6 +18,9 @@ void NRF24L01_RX_Mode(NRF24L01_t *nrf)
     NRF24L01_FlushTX(nrf);
 }
 
+/**
+ * @brief Переход в режим отправки данных
+ */
 void NRF24L01_TX_Mode(NRF24L01_t *nrf)
 {
     NRF24L01_WriteBuf(nrf, NRF_TX_ADDR, (uint8_t*)&(nrf->pipe.tx_addr), 5);
@@ -24,7 +30,9 @@ void NRF24L01_TX_Mode(NRF24L01_t *nrf)
     NRF24L01_FlushTX(nrf);
 }
 
-
+/**
+ * @brief Инициализация
+ */
 void NRF24L01_Init(NRF24L01_t *nrf)
 {
     CE_DOWN(nrf);
@@ -87,17 +95,26 @@ void NRF24L01_Init(NRF24L01_t *nrf)
     NRF24L01_RX_Mode(nrf);
 }
 
-
+/**
+ * @brief Линии CE задать низкий уровень
+ */
 void CE_DOWN(NRF24L01_t *nrf)
 {
     HAL_GPIO_WritePin(nrf->interface.ce_port, nrf->interface.ce_pin, 0);
 }
 
+/**
+ * @brief Линии CE задать высокий уровень
+ */
 void CE_UP(NRF24L01_t *nrf)
 {
     HAL_GPIO_WritePin(nrf->interface.ce_port, nrf->interface.ce_pin, 1);
 }
 
+/**
+ * @brief Чтение регистра NRF24L01
+ * @return содержимое регистра
+ */
 uint8_t NRF24L01_ReadReg(NRF24L01_t *nrf, uint8_t addr)
 {
     uint8_t data = 0, cmd;
@@ -112,6 +129,9 @@ uint8_t NRF24L01_ReadReg(NRF24L01_t *nrf, uint8_t addr)
     return data;
 }
 
+/**
+ * @brief Запись регистра NRF24L01
+ */
 void NRF24L01_WriteReg(NRF24L01_t *nrf, uint8_t addr, uint8_t data)
 {
     addr |= W_REGISTER;
@@ -122,6 +142,12 @@ void NRF24L01_WriteReg(NRF24L01_t *nrf, uint8_t addr, uint8_t data)
     HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
+/**
+ * @brief Чтение массива данных с NRF24L01 в буфер
+ * @param addr адрес регистра NRF24L01
+ * @param buf указатель на буфер
+ * @param quan длина буфера
+ */
 void NRF24L01_ReadBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan)
 {
     HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
@@ -135,6 +161,12 @@ void NRF24L01_ReadBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan)
     HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
+/**
+ * @brief Запись массива данных в NRF24L01
+ * @param addr адрес регистра NRF24L01
+ * @param buf указатель на буфер
+ * @param quan длина буфера
+ */
 void NRF24L01_WriteBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan)
 {
     addr |= W_REGISTER;
@@ -149,6 +181,9 @@ void NRF24L01_WriteBuf(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan
     HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
+/**
+ * @brief Очистка буфера FIFO приемника
+ */
 void NRF24L01_FlushRX(NRF24L01_t *nrf)
 {
     HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
@@ -158,6 +193,9 @@ void NRF24L01_FlushRX(NRF24L01_t *nrf)
     HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
+/**
+ * @brief Очистка буфера FIFO передатчика
+ */
 void NRF24L01_FlushTX(NRF24L01_t *nrf)
 {
     HAL_SPI_CS_Enable(nrf->interface.spi, nrf->interface.cs);
@@ -167,7 +205,9 @@ void NRF24L01_FlushTX(NRF24L01_t *nrf)
     HAL_SPI_CS_Disable(nrf->interface.spi);
 }
 
-#include "xprintf.h"
+/**
+ * @brief
+ */
 void NRF24L01_Transmit(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan)
 {
     CE_DOWN(nrf);
@@ -183,6 +223,12 @@ void NRF24L01_Transmit(NRF24L01_t *nrf, uint8_t addr, uint8_t *buf, uint8_t quan
     CE_UP(nrf);
 }
 
+/**
+ * @brief Отправка пакета данных
+ * @param buf буфер, из которого считываются данные для передачи. Количество считывемых
+ * байт данных определяется настройкой длины пакета
+ * @return содержимое регистра OBSERVE_TX NRF, если передача успешна, значение 0
+ */
 uint8_t NRF24L01_Send(NRF24L01_t *nrf, uint8_t *buf)
 {
     uint8_t status=0, regval;
@@ -200,18 +246,31 @@ uint8_t NRF24L01_Send(NRF24L01_t *nrf, uint8_t *buf)
     return regval;
 }
 
+/**
+ * @brief
+ */
 HAL_StatusTypeDef NRF24L01_RX_data_ready(NRF24L01_t *nrf)
 {
     uint8_t status = NRF24L01_ReadReg(nrf, NRF_STATUS);
     return (status & NRF_CONFIG_RX_DR_M) != 0 ? HAL_OK : HAL_BUSY;
 }
 
+/**
+ * @brief
+ */
 HAL_StatusTypeDef NRF24L01_TX_data_sent(NRF24L01_t *nrf)
 {
     uint8_t status = NRF24L01_ReadReg(nrf, NRF_STATUS);
     return (status & NRF_CONFIG_TX_DS_M) != 0 ? HAL_OK : HAL_BUSY;
 }
 
+/**
+ * @brief Прием данных
+ * @param buf буфер, куда записываются принятные данные. Количество записываемых
+ * байт данных определяется настройкой длины пакета
+ * @return Если 7, то ошибка. Если 0..5 - данные приняты по соответсвенному
+ * логическому каналу
+ */
 int8_t NRF24L01_Read(NRF24L01_t *nrf, uint8_t *buf)
 {
     uint8_t status = NRF24L01_ReadReg(nrf, NRF_STATUS);
